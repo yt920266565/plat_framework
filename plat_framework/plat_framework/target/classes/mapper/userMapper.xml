@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yanmade.plat.framework.dao.UserMapper">
+    
+    <resultMap type="com.yanmade.plat.framework.entity.SmUser" id="smUser" autoMapping="true">
+        <id column="id" property="id" javaType="Integer"/>
+        <collection property="roles" ofType="com.yanmade.plat.framework.entity.SmRole" javaType="List">
+            <id column="roleId" property="id"/>
+            <result column="name" property="name"/>
+        </collection>
+    </resultMap>
+    
+    <select id="getUsers" parameterType="Map" resultMap="smUser">
+        select 
+        a.id, a.username, a.realname, a.email, a.phone, a.deptId, a.createTime, a.deptName,
+        b.roleId, 
+        c.name
+        from sm_user a 
+        left join sm_user_role b on a.id = b.userId 
+        left join sm_role c on c.id = b.roleId
+        <where>
+            <if test="id > 0">
+                and a.id = #{id}
+            </if>
+            <if test="username != null and username != '' ">
+                <bind name="username" value="'%' + username + '%'"/>
+                and a.username like #{username}
+            </if>
+            <if test="realName != null and realName != '' ">
+                <bind name="realName" value="'%' + realName + '%'"/>
+                and a.realName like #{realName}
+            </if>
+            <if test="email != null and email != '' ">
+                <bind name="email" value="'%' + email + '%'"/>
+                and a.email like #{email}
+            </if>
+            <if test="phone != null and phone != '' ">
+                <bind name="phone" value="'%' + phone + '%'"/>
+                and a.phone like #{phone}
+            </if>
+            <if test="deptId > 0">
+                and a.deptId = #{deptId}
+            </if>
+            <if test="roleId != null and roleId > 0">
+                and b.roleId = #{roleId}
+            </if>
+        </where>
+        group by a.id
+    </select>
+    
+    <update id="updateUser" parameterType="com.yanmade.plat.framework.entity.SmUser">
+        update sm_user
+        <set>
+            <if test="username != null and username != '' ">
+                username = #{username},
+            </if>
+            <if test="password != null and password != '' ">
+                password = #{password},
+            </if>
+            <if test="realName != null and realName != '' ">
+                realName = #{realName},
+            </if>
+            <if test="email != null and email != '' ">
+                email = #{email},
+            </if>
+            <if test="phone != null and phone != '' ">
+                phone = #{phone},
+            </if>
+            <if test="deptId > 0">
+                deptId = #{deptId},
+            </if>
+            <if test="deptName != null and deptName != ''">
+                deptName = #{deptName},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    
+</mapper>

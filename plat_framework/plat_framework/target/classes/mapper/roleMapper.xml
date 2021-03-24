@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yanmade.plat.framework.dao.RoleMapper">
+    
+    <resultMap type="com.yanmade.plat.framework.entity.SmRole" id="smRole" autoMapping="true">
+        <id column="id" property="id" javaType="Integer"/>
+        <collection property="functions" ofType="com.yanmade.plat.framework.entity.SmFunction" javaType="List">
+            <id column="functionId" property="id"/>
+            <result column="functionName" property="name"/>
+        </collection>
+        
+        <collection property="departments" ofType="com.yanmade.plat.framework.entity.SmDepartment" javaType="List">
+            <id column="departmentId" property="id"/>
+            <result column="departmentName" property="name"/>
+        </collection>
+    </resultMap>
+    
+    <select id="getRoles" parameterType="Integer" resultMap="smRole">
+        select 
+        a.*
+        <if test="_parameter != null and _parameter > 0"> 
+	        ,
+	        c.id functionId, c.name functionName,
+	        e.id departmentId, e.name departmentName
+        </if>
+        from sm_role a  
+        <if test="_parameter != null and _parameter > 0"> 
+	        left join sm_role_function b on a.id = b.roleId 
+	        left join sm_function c on c.id = b.functionId
+	        left join sm_role_department d on a.id = d.roleId
+	        left join sm_department e on e.id = d.departmentId
+        </if>
+        <where>
+            <if test="_parameter != null and _parameter > 0"> 
+                and a.id = #{roleId}
+            </if>
+        </where>
+        group by a.id
+    </select>
+    
+</mapper>
